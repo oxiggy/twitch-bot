@@ -1,5 +1,12 @@
 const tmi = require('tmi.js');
-const { BOT_USERNAME, BOT_TOKEN, BOT_CHANNELS } = process.env;
+const Firebase= require('firebase-admin')
+
+const { BOT_USERNAME, BOT_TOKEN, BOT_CHANNELS, FIREBASE_DATABASE_URL, FIREBASE_SERVICE_ACCOUNT } = process.env;
+
+const firebase= Firebase.initializeApp({
+    credential: Firebase.credential.cert(JSON.parse(FIREBASE_SERVICE_ACCOUNT)),
+    databaseURL: FIREBASE_DATABASE_URL,
+});
 
 const options = {
     identity: {
@@ -34,6 +41,7 @@ function onMessageHandler (target, context, msg, self) {
         console.log(`* Unknown command ${commandName}`);
     }
 }
+const
 // Function called when the "dice" command is issued
 function rollDice () {
     const sides = 6;

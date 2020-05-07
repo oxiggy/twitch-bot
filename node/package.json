@@ -8,6 +8,7 @@
     "start-dev": "node -r dotenv/config index.js"
   },
   "dependencies": {
+    "firebase-admin": "^8.12.0",
     "tmi.js": "^1.5.0"
   },
   "devDependencies": {
