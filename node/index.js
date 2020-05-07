@@ -1,12 +1,27 @@
-const tmi = require('tmi.js');
+const tmi = require('tmi.js')
 const Firebase= require('firebase-admin')
 
-const { BOT_USERNAME, BOT_TOKEN, BOT_CHANNELS, FIREBASE_DATABASE_URL, FIREBASE_SERVICE_ACCOUNT } = process.env;
+const { BOT_USERNAME, BOT_TOKEN, BOT_CHANNELS, FIREBASE_DATABASE_URL, FIREBASE_SERVICE_ACCOUNT } = process.env
 
-const firebase= Firebase.initializeApp({
+const firebase = Firebase.initializeApp({
     credential: Firebase.credential.cert(JSON.parse(FIREBASE_SERVICE_ACCOUNT)),
     databaseURL: FIREBASE_DATABASE_URL,
-});
+})
+const firestore = firebase.firestore()
+
+let CONFIG = {}
+
+firestore
+    .collection('bot')
+    .doc('twitch')
+    .collection('command')
+    .onSnapshot(snapshot => {
+        CONFIG.commands = []
+        snapshot.forEach(doc => {
+            CONFIG.commands.push(doc.data())
+        })
+    })
+;
 
 const options = {
     identity: {
@@ -16,7 +31,7 @@ const options = {
     channels: JSON.parse(BOT_CHANNELS),
 };
 
-const client = new tmi.client(options);
+const client = new tmi.client(options)
 
 // Register our event handlers (defined below)
 client.on('message', onMessageHandler);
@@ -27,38 +42,15 @@ client.connect();
 
 const TextReplyCommand = require('./commands/TextReplyCommand')
 
-const COMMANDS = [
-    {
-        token: '!dice',
-        type: 'text-reply',
-        replies: [
-            '1',
-            '2',
-            '3',
-            {
-                text: '4',
-            },
-            {
-                text: '5',
-                probability: 1,
-            },
-            {
-                text: '6',
-                probability: 2,
-            }
-        ]
-    }
-]
-
 // Called every time a message comes in
-function onMessageHandler (target, context, msg, self) {
-    if (self) { return; } // Ignore messages from the bot
+function onMessageHandler(target, context, msg, self) {
+    if (self) { return }
+    if (!CONFIG && !CONFIG.commands) return
 
-    // Remove whitespace from chat message
     const commandName = msg.trim()
 
     let commandOptions = null
-    for (const command of COMMANDS) {
+    for (const command of CONFIG.commands) {
         if (command.token === commandName) {
             commandOptions = command
             break
