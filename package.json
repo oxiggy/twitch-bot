@@ -1,0 +1,14 @@
+{
+  "name": "twitch-bot",
+  "version": "1.0.0",
+  "description": "twitch bot",
+  "main": "index.js",
+  "scripts": {
+    "start-backend": "cd node && npm start",
+    "start-backend-dev": "cd node && npm run start-dev",
+    "start-frontend": "cd browser && npm start",
+    "build-frontend": "cd browser && npm run build"
+  },
+  "author": "oxiggy",
+  "private": true
+}

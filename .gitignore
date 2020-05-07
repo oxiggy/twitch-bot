@@ -1,0 +1,4 @@
+/browser/node_modules
+/node/node_modules
+.env
+.idea
