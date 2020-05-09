@@ -3,8 +3,8 @@ import 'firebase/auth'
 import 'firebase/firestore'
 import 'firebase/functions'
 
-const { FIREBASE_CONFIG } = process.env
+const { REACT_APP_FIREBASE_CONFIG } = process.env
 
-firebase.initializeApp(FIREBASE_CONFIG)
+firebase.initializeApp(JSON.parse(REACT_APP_FIREBASE_CONFIG))
 
 export default firebase
