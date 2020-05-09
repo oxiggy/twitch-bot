@@ -41,9 +41,18 @@ module.exports = class UsersService {
     }
 
     isUsername(channel, username) {
-        const usernames = this.getUsernames(channel)
-        username = username.replace(/^@/, '')
-        return usernames.indexOf(username) > -1
+        if (!username) {
+            return false
+        }
+        if (/^@[0-9A-Za-z_]+$/.test(username)) {
+            return true
+        }
+        if (/^[0-9A-Za-z_]+$/.test(username)) {
+            const usernames = this.getUsernames(channel)
+            username = username.replace(/^@/, '')
+            return usernames.indexOf(username) > -1
+        }
+        return false
     }
 
 }
