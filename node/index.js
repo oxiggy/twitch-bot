@@ -11,21 +11,36 @@ const firebase = Firebase.initializeApp({
 })
 const firestore = firebase.firestore()
 
-let CONFIG = {}
+const usersService = new UsersService
+
+let COMMANDS = []
 
 firestore
     .collection('bot')
     .doc('twitch')
     .collection('command')
     .onSnapshot(snapshot => {
-        CONFIG.commands = []
+        COMMANDS = []
         snapshot.forEach(doc => {
-            CONFIG.commands.push(doc.data())
+            const commandOptions= doc.data()
+            let commandClass
+            switch (commandOptions.type) {
+                case 'text-reply': {
+                    commandClass= TextReplyCommand
+                    break
+                }
+                default: {
+                    commandClass = null
+                }
+            }
+            if (commandClass) {
+                COMMANDS.push(new TextReplyCommand(commandOptions, {
+                    usersService
+                }))
+            }
         })
     })
 ;
-
-const usersService= new UsersService
 
 const options = {
     identity: {
@@ -46,44 +61,24 @@ client.connect()
 
 // User has joined a channel. Not available on large channels and is also sent in batch every 30 - 60 secs.
 function onJoin(channel, username, self) {
-    usersService.fetchChatters()
+    usersService.fetchChatters(channel)
 }
 
 // User has left a channel
 function onPart(channel, username, self) {
-    usersService.fetchChatters()
+    usersService.fetchChatters(channel)
 }
 
 // Called every time a message comes in
 function onMessageHandler(channel, context, message, self) {
     if (self) return
-    if (!CONFIG && !CONFIG.commands) return
 
     message = message.trim()
     if (message.indexOf('!') === 0) { // сообщение является командой
-        let commandOptions = null
-        for (const options of Object.values(CONFIG.commands)) {
-            if (message.indexOf(options.trigger) === 0) {
-                commandOptions = options
+        for (const command of COMMANDS) {
+            if (command.handle(client, channel, context, message)) {
                 break
             }
-        }
-        let command
-        if (commandOptions) {
-            switch (commandOptions.type) {
-                case 'text-reply': {
-                    command = new TextReplyCommand(commandOptions, {
-                        usersService
-                    })
-                    break
-                }
-                default: {
-                    command = null
-                }
-            }
-        }
-        if (command) {
-            command.exec(client, channel, context, message)
         }
     }
 }

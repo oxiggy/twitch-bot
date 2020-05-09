@@ -8,13 +8,9 @@ module.exports = class TextReplyCommand {
         this.usersService = usersService
     }
 
-    exec(client, channel, user, message) {
-        if (!this.options.enabled) {
-            return
-        }
-
+    createContext(client, channel, user, message) {
         const args = message.replace(this.options.trigger, '').trim().split(/\s+/).filter((arg) => arg !== '')
-        const context = {
+        return {
             args,
             user,
             Users: {
@@ -26,20 +22,26 @@ module.exports = class TextReplyCommand {
                 },
             }
         }
+    }
 
-        if (this.options.condition) {
-            const result = safeEval(this.options.condition, context)
-            if (!result) {
+    handle(client, channel, user, message) {
+        if (message.toLowerCase().indexOf(this.options.trigger.toLowerCase()) !== 0) {
+            return
+        }
+        if (!this.options.enabled) {
+            return
+        }
+        const context = this.createContext(client, channel, user, message)
+        if (this.options.condition !== undefined) {
+            if (!safeEval(this.options.condition, context)) {
                 return
             }
         }
-
         if (this.options.cooldown) {
             // @todo
         }
-
         if (!Array.isArray(this.options.replyVariants)) {
-            return
+            return true
         }
         const picker = new Picker
         for (const variant of this.options.replyVariants) {
@@ -57,8 +59,8 @@ module.exports = class TextReplyCommand {
         }
         const reply = picker.pick()
         const replyText = safeEval(reply, context)
-
         client.say(channel, replyText)
+        return true
     }
 
 }
