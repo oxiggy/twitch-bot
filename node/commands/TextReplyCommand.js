@@ -1,5 +1,5 @@
 const { Picker } = require('random-picker')
-const safeEval = require('notevil')
+const safeEval = require('safe-eval')
 
 module.exports = class TextReplyCommand {
 
