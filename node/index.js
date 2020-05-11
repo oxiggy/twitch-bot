@@ -70,14 +70,18 @@ function onPart(channel, username, self) {
 }
 
 // Called every time a message comes in
-function onMessageHandler(channel, user, message, self) {
+async function onMessageHandler(channel, user, message, self) {
     if (self) return
 
     message = message.trim()
     if (message.indexOf('!') === 0) { // сообщение является командой
         for (const command of COMMANDS) {
-            if (command.handle(client, channel, user, message)) {
-                break
+            try {
+                if (await command.handle(client, channel, user, message)) {
+                    break
+                }
+            } catch (error) {
+                console.error(error)
             }
         }
     }
