@@ -8,7 +8,7 @@
     "start-dev": "node -r dotenv/config index.js"
   },
   "dependencies": {
-    "firebase-admin": "^8.12.0",
+    "firebase-admin": "^11.4.1",
     "random-picker": "^1.0.0",
     "request-promise": "^4.2.5",
     "safe-eval": "^0.4.1",
